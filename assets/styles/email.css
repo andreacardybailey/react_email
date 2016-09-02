@@ -1,0 +1,64 @@
+* {
+  margin:0;
+  padding: 0;
+  font-family: Arial, 'sans-serif';
+  box-sizing: border-box;
+}
+h1 {
+  font-size: 1.5rem;
+  text-align: center;
+}
+.emailContainer {
+  width: 80%;
+  margin: 2rem auto;
+}
+
+.sidebar {
+  width: 30%;
+  float: left;
+}
+
+.sidebar > ul {
+  list-style: none;
+}
+
+.emailList {
+  width: 70%;
+  float: right;
+}
+
+.emailList > ul {
+  list-style: none;
+}
+
+.emailList > ul li {
+  display: inline-block;
+}
+
+.emailList-from {
+  width: 20%;
+}
+
+.emailList-title {
+  width: 80%;
+}
+
+.emailDetails > ul {
+  list-style: none;
+}
+
+.emailDetails-content {
+  margin-top: 1.5rem;
+}
+
+
+.clearfix:before,
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+.clearfix:after {
+    clear: both;
+}
