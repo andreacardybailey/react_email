@@ -56,69 +56,131 @@
 	var Link = router.Link;
 	var IndexRoute = router.IndexRoute;
 	
-	var Email = React.createClass({
-	  displayName: "Email",
-	
-	  getInitialState: function getInitialState() {
-	    return {
-	      inbox: {
-	        0: {
-	          id: 0,
-	          from: "billg@microsoft.com",
-	          to: "TeamWoz@Woz.org",
-	          title: "Possible work opportunity",
-	          content: "Dear Woz.  Fancy a job at Mister Softee?  Bill x"
-	        },
-	        1: {
-	          id: 1,
-	          from: "zuck@facebook.com",
-	          to: "TeamWoz@Woz.org",
-	          title: "Do you know PHP?",
-	          content: "Dear Woz.  We are in need of a PHP expert.  Fast.  Zuck x"
-	        }
-	      },
-	      spam: {
-	        0: {
-	          id: 0,
-	          from: "ChEaPFl1ghTZ@hotmail.com",
-	          to: "TeamWoz@Woz.org",
-	          title: "WaNt CHEEp FlitZ",
-	          content: "Theyre CheEp"
-	        },
-	        1: {
-	          id: 1,
-	          from: "NiKEAIRJordanZ@hotmail.com",
-	          to: "TeamWoz@Woz.org",
-	          title: "JorDanz For SAle",
-	          content: "Theyre REELY CheEp"
-	        }
-	      }
-	    };
+	var EMAILS = {
+	  'inbox': {
+	    0: {
+	      id: 0,
+	      from: "billg@microsoft.com",
+	      to: "TeamWoz@Woz.org",
+	      title: "Possible work opportunity",
+	      content: "Dear Woz.  Fancy a job at Mister Softee?  Bill x"
+	    },
+	    1: {
+	      id: 1,
+	      from: "zuck@facebook.com",
+	      to: "TeamWoz@Woz.org",
+	      title: "Do you know PHP?",
+	      content: "Dear Woz.  We are in need of a PHP expert.  Fast.  Zuck x"
+	    }
 	  },
-	  render: function render() {
-	    return React.createElement(EmailContainer, { emailState: Email.state });
+	  spam: {
+	    0: {
+	      id: 0,
+	      from: "ChEaPFl1ghTZ@hotmail.com",
+	      to: "TeamWoz@Woz.org",
+	      title: "WaNt CHEEp FlitZ",
+	      content: "Theyre CheEp"
+	    },
+	    1: {
+	      id: 1,
+	      from: "NiKEAIRJordanZ@hotmail.com",
+	      to: "TeamWoz@Woz.org",
+	      title: "JorDanz For SAle",
+	      content: "Theyre REELY CheEp"
+	    }
 	  }
-	});
-	// emailContainer component
-	var EmailContainer = function EmailContainer(props) {
-	  console.log(props); // why is this returning routing props instead of the properties of my stateful <Email /> component???
-	  var emailLists = [];
-	  for (var i = 0; i < props.emailState.inbox.length; i++) {
-	    emailLists.push(React.createElement(EmailList, { listItem: props.emailState.inbox[i],
-	      key: i,
-	      from: props.emailState.inbox[i].from,
-	      title: props.emailState.inbox[i].title
-	    }));
+	};
+	
+	var EmailListContainer = function EmailListContainer(props) {
+	  // set default folder to be the inbox when page is loaded
+	  var thisFolder = "inbox";
+	  if (props.params.emailFolder) {
+	    thisFolder = props.params.emailFolder;
 	  }
+	  return React.createElement(EmailList, { emails: EMAILS, folder: thisFolder });
+	};
+	
+	var EmailList = function EmailList(props) {
+	  var thisEmailFolder = EMAILS[props.folder];
+	  var thisFolder = props.folder;
 	  return React.createElement(
-	    "main",
-	    { className: "emailContainer clearfix" },
-	    React.createElement(Sidebar, null),
-	    React.createElement(EmailList, null)
+	    "section",
+	    { className: "emailList" },
+	    React.createElement(ShowEmails, { emails: thisEmailFolder, folder: thisFolder })
 	  );
 	};
 	
-	// sidebar component
+	var ShowEmails = function ShowEmails(props) {
+	  var showEmails = Object.keys(props.emails).map(function (emailId, index) {
+	    var showEmail = props.emails[emailId];
+	    return React.createElement(
+	      "ul",
+	      { key: emailId },
+	      React.createElement(
+	        "li",
+	        { className: "emailList-from" },
+	        React.createElement(
+	          Link,
+	          { to: 'email/' + props.folder + '/' + emailId },
+	          showEmail.from
+	        )
+	      ),
+	      React.createElement(
+	        "li",
+	        { className: "emailList-title" },
+	        React.createElement(
+	          Link,
+	          { to: 'email/' + props.folder + '/' + emailId },
+	          showEmail.title
+	        )
+	      )
+	    );
+	  });
+	  return React.createElement(
+	    "div",
+	    null,
+	    showEmails
+	  );
+	};
+	
+	var EmailDetails = function EmailDetails(props) {
+	  var thisFolder = props.params.emailFolder;
+	  var thisId = props.params.emailId;
+	  var thisEmail = EMAILS[thisFolder][thisId];
+	
+	  return React.createElement(
+	    "section",
+	    { className: "emailDetails" },
+	    React.createElement(
+	      "ul",
+	      null,
+	      React.createElement(
+	        "li",
+	        { className: "emailDetails-from" },
+	        "From: ",
+	        thisEmail.from
+	      ),
+	      React.createElement(
+	        "li",
+	        { className: "emailDetails-to" },
+	        "To: ",
+	        thisEmail.to
+	      ),
+	      React.createElement(
+	        "li",
+	        { className: "emailDetails-title" },
+	        "Subject: ",
+	        thisEmail.title
+	      ),
+	      React.createElement(
+	        "li",
+	        { className: "emailDetails-content" },
+	        thisEmail.content
+	      )
+	    )
+	  );
+	};
+	
 	var Sidebar = function Sidebar(props) {
 	  return React.createElement(
 	    "nav",
@@ -148,76 +210,12 @@
 	  );
 	};
 	
-	// emailList component
-	var EmailList = function EmailList(props) {
-	
-	  return React.createElement(
-	    "section",
-	    { className: "emailList" },
-	    React.createElement(
-	      "ul",
-	      null,
-	      React.createElement(
-	        "li",
-	        { className: "emailList-from" },
-	        "From"
-	      ),
-	      React.createElement(
-	        "li",
-	        { className: "emailList-title" },
-	        "Title"
-	      )
-	    )
-	  );
-	};
-	
-	// emailDetails component
-	
-	var EmailDetails = function EmailDetails(props) {
-	  return React.createElement(
-	    "section",
-	    { className: "emailDetails" },
-	    React.createElement(
-	      "ul",
-	      null,
-	      React.createElement(
-	        "li",
-	        { className: "from" },
-	        "From"
-	      ),
-	      React.createElement(
-	        "li",
-	        { className: "to" },
-	        "Title"
-	      ),
-	      React.createElement(
-	        "li",
-	        { className: "title" },
-	        "Title"
-	      ),
-	      React.createElement(
-	        "li",
-	        { className: "content" },
-	        "Title"
-	      )
-	    )
-	  );
-	};
-	
-	var App = function App(props) {
+	var EmailApp = function EmailApp(props) {
 	  return React.createElement(
 	    "div",
 	    null,
-	    React.createElement(
-	      "h1",
-	      null,
-	      "Email App"
-	    ),
-	    React.createElement(
-	      "div",
-	      null,
-	      props.children
-	    )
+	    React.createElement(Sidebar, null),
+	    props.children
 	  );
 	};
 	
@@ -226,9 +224,10 @@
 	  { history: hashHistory },
 	  React.createElement(
 	    Route,
-	    { path: "/email", component: App },
-	    React.createElement(IndexRoute, { component: EmailContainer }),
-	    React.createElement(Route, { path: ":emailId", component: EmailDetails })
+	    { path: "email", component: EmailApp },
+	    React.createElement(IndexRoute, { component: EmailListContainer }),
+	    React.createElement(Route, { path: ":emailFolder", component: EmailListContainer }),
+	    React.createElement(Route, { path: ":emailFolder/:emailId", component: EmailDetails })
 	  )
 	);
 	

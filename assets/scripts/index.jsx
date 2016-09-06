@@ -9,69 +9,98 @@ var hashHistory = router.hashHistory;
 var Link = router.Link;
 var IndexRoute = router.IndexRoute;
 
-var Email = React.createClass({
-  getInitialState: function() {
-    return {
-      inbox: {
-        0: {
-          id: 0,
-          from: "billg@microsoft.com",
-          to: "TeamWoz@Woz.org",
-          title: "Possible work opportunity",
-          content: "Dear Woz.  Fancy a job at Mister Softee?  Bill x"
-        },
-        1: {
-          id: 1,
-          from: "zuck@facebook.com",
-          to: "TeamWoz@Woz.org",
-          title: "Do you know PHP?",
-          content: "Dear Woz.  We are in need of a PHP expert.  Fast.  Zuck x"
-        }
+var EMAILS = {
+    'inbox': {
+      0: {
+        id: 0,
+        from: "billg@microsoft.com",
+        to: "TeamWoz@Woz.org",
+        title: "Possible work opportunity",
+        content: "Dear Woz.  Fancy a job at Mister Softee?  Bill x"
       },
-      spam: {
-        0: {
-          id: 0,
-          from: "ChEaPFl1ghTZ@hotmail.com",
-          to: "TeamWoz@Woz.org",
-          title: "WaNt CHEEp FlitZ",
-          content: "Theyre CheEp"
-        },
-        1: {
-          id: 1,
-          from: "NiKEAIRJordanZ@hotmail.com",
-          to: "TeamWoz@Woz.org",
-          title: "JorDanz For SAle",
-          content: "Theyre REELY CheEp"
-        }
+      1: {
+        id: 1,
+        from: "zuck@facebook.com",
+        to: "TeamWoz@Woz.org",
+        title: "Do you know PHP?",
+        content: "Dear Woz.  We are in need of a PHP expert.  Fast.  Zuck x"
+      }
+    },
+    spam: {
+      0: {
+        id: 0,
+        from: "ChEaPFl1ghTZ@hotmail.com",
+        to: "TeamWoz@Woz.org",
+        title: "WaNt CHEEp FlitZ",
+        content: "Theyre CheEp"
+      },
+      1: {
+        id: 1,
+        from: "NiKEAIRJordanZ@hotmail.com",
+        to: "TeamWoz@Woz.org",
+        title: "JorDanz For SAle",
+        content: "Theyre REELY CheEp"
       }
     }
-  },
-  render: function() {
-    return (
-      <EmailContainer emailState={Email.state} />
-    );
+};
+
+var EmailListContainer = function(props) {
+  // set default folder to be the inbox when page is loaded
+  var thisFolder = "inbox";
+  if(props.params.emailFolder) {
+    thisFolder = props.params.emailFolder;
   }
-});
-// emailContainer component
-var EmailContainer = function(props) {
-  console.log(props); // why is this returning routing props instead of the properties of my stateful <Email /> component???
-  var emailLists = [];
-  for (var i=0; i<props.emailState.inbox.length; i++) {
-    emailLists.push(<EmailList listItem={props.emailState.inbox[i]} 
-                                       key={i} 
-                                       from={props.emailState.inbox[i].from}
-                                       title={props.emailState.inbox[i].title} 
-                     />);
-  }
+  return <EmailList emails={EMAILS} folder={thisFolder} />
+}
+
+var EmailList = function(props) {
+  var thisEmailFolder = EMAILS[props.folder];
+  var thisFolder = props.folder
   return (
-    <main className="emailContainer clearfix">
-      <Sidebar />
-      <EmailList />
-    </main>
+    <section className="emailList">
+      <ShowEmails emails={thisEmailFolder} folder={thisFolder} />
+    </section>
   );
 };
 
-// sidebar component
+var ShowEmails = function(props) {
+  var showEmails = Object.keys(props.emails).map(function(emailId, index) {
+    var showEmail = props.emails[emailId];
+    return (
+      <ul key={emailId}>
+        <li className="emailList-from">
+          <Link to={'email/' + props.folder + '/' + emailId}>{showEmail.from}</Link>
+        </li>
+        <li className="emailList-title">
+          <Link to={'email/' + props.folder + '/' + emailId}>{showEmail.title}</Link>
+        </li>
+      </ul>
+    );
+  });
+  return(
+    <div> 
+      {showEmails}
+    </div>
+  );
+};
+
+var EmailDetails = function(props) {
+  var thisFolder = props.params.emailFolder;
+  var thisId = props.params.emailId;
+  var thisEmail = EMAILS[thisFolder][thisId];
+
+  return (
+    <section className="emailDetails">
+      <ul>
+        <li className="emailDetails-from">From: {thisEmail.from}</li>
+        <li className="emailDetails-to">To: {thisEmail.to}</li>
+        <li className="emailDetails-title">Subject: {thisEmail.title}</li>
+        <li className="emailDetails-content">{thisEmail.content}</li>
+      </ul>
+    </section>
+  );
+};
+
 var Sidebar = function(props) {
   return (
     <nav className="sidebar">
@@ -85,60 +114,28 @@ var Sidebar = function(props) {
       </ul>
     </nav>
   );
-};
+}
 
-// emailList component
-var EmailList = function(props) {
-  
-
+var EmailApp = function(props) {
   return (
-    <section className="emailList">
-      <ul>
-        <li className="emailList-from">From</li>
-        <li className="emailList-title">Title</li>
-      </ul>
-    </section>
+    <div>
+      <Sidebar />
+      {props.children}
+    </div>
+    
   );
-};
-
-// emailDetails component
-
-var EmailDetails = function(props) {
-  return (
-    <section className="emailDetails">
-      <ul>
-        <li className="from">From</li>
-        <li className="to">Title</li>
-        <li className="title">Title</li>
-        <li className="content">Title</li>
-      </ul>
-    </section>
-  );
-};
-
-var App = function(props) {
-    return (
-        <div>
-            <h1>
-                Email App
-            </h1>
-            <div>
-                {props.children}
-            </div>
-        </div>
-    );
 };
 
 var routes = (
     <Router history={hashHistory}>
-        <Route path="/email" component={App}>
-            <IndexRoute component={EmailContainer} />
-            <Route path=":emailId" component={EmailDetails} />
-        </Route>
+      <Route path="email" component={EmailApp}>
+        <IndexRoute component={EmailListContainer} />
+        <Route path=":emailFolder" component={EmailListContainer} />
+        <Route path=":emailFolder/:emailId" component={EmailDetails} />
+      </Route>
     </Router>
 );
 
 document.addEventListener("DOMContentLoaded", function() {
     ReactDOM.render(routes, document.getElementById("app"));
 });
-
