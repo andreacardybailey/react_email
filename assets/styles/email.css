@@ -22,7 +22,6 @@ h1 {
 .sidebar {
   width: 15%;
   float: left;
-
 }
 
 .sidebar > ul {
@@ -57,7 +56,6 @@ h1 {
 .emailDetails-content {
   margin-top: 1.5rem;
 }
-
 
 .clearfix:before,
 .clearfix:after {

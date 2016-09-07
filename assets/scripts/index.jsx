@@ -55,7 +55,7 @@ var EmailListContainer = function(props) {
 
 var EmailList = function(props) {
   var thisEmailFolder = EMAILS[props.folder];
-  var thisFolder = props.folder
+  var thisFolder = props.folder;
   return (
     <section className="emailList">
       <ShowEmails emails={thisEmailFolder} folder={thisFolder} />
